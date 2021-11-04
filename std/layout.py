@@ -1,5 +1,6 @@
 import pathlib
 import cairo
+from src.utils import get_project_root
 
 # All dimensions are in mm
 # Card Measurements
@@ -22,7 +23,7 @@ deltaX = 68
 deltaY = 90
 
 def getSurface() -> cairo.ImageSurface:
-    return cairo.ImageSurface.create_from_png(pathlib.Path(__file__).parent / 'layout.png')
+    return cairo.ImageSurface.create_from_png(get_project_root() / 'layout.png')
 
 def getMatrix(x: int, y: int, surf: cairo.ImageSurface):
     sx = surf.get_width() / 8.5 / 25.4

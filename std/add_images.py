@@ -1,7 +1,7 @@
 import json
 import os
 import pathlib
-import card_model
+import std.card_model
 
 from PIL import Image
 
@@ -24,7 +24,7 @@ class BaseImage:
         self.baseImage.save(path)
 
 
-def processImage(card: card_model.CardModel, deck):
+def processImage(card: std.card_model.CardModel, deck):
     if card.image is None:
         return
     if not os.path.exists(os.path.join('decks',deck,'images',str(card.image))):
@@ -37,7 +37,7 @@ def processImage(card: card_model.CardModel, deck):
     
 
 
-def addImage (card: card_model.CardModel , base: BaseImage, deck,cardPos):
+def addImage (card: std.card_model.CardModel , base: BaseImage, deck,cardPos):
 
     if card.image is None:
         return base.get()

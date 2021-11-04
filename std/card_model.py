@@ -1,6 +1,5 @@
 import json
-import pathlib
-
+from src.utils import get_project_root
 
 class CardDeck:
     def __init__(self, name='AllCards.json'):
@@ -10,7 +9,7 @@ class CardDeck:
 
     def load(self, name):
 
-        with open(pathlib.Path(__file__).parent / name, encoding='utf-8') as dbFile:
+        with open(get_project_root() / name, encoding='utf-8') as dbFile:
             db = json.load(dbFile)
             self.cardDb = db
     def getDb(self):

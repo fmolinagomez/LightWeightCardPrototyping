@@ -10,10 +10,10 @@ import cairo
 import argparse
 
 
-import layout
-from draw_card import drawCard
-from card_model import CardModel
-from card_model import CardDeck
+import std.layout
+from std.draw_card import drawCard
+from std.card_model import CardModel
+from std.card_model import CardDeck
 
 
 
@@ -70,7 +70,7 @@ if not os.path.exists(os.path.join('decks',deck_name)):
 for page_number in range(len(pageList)):
     print(f'Page {page_number}:')
     page = pageList[page_number]
-    surf = layout.getSurface()
+    surf = std.layout.getSurface()
     ctx = cairo.Context(surf)
 
     for i in range(len(page)):
@@ -78,15 +78,15 @@ for page_number in range(len(pageList)):
         cardPos = (i % 3, i // 3)
         print(cardPos)
         print(card)
-        mat = layout.getMatrix(*cardPos, surf)
+        mat = std.layout.getMatrix(*cardPos, surf)
         ctx.set_matrix(mat)
         drawCard(card, ctx)
 
     surf.write_to_png(f'decks/{deck_name}/{deck_name}_p{page_number}.png')
 
-    from add_images import BaseImage
-    from add_images import addImage
-    from add_images import processImage
+    from std.add_images import BaseImage
+    from std.add_images import addImage
+    from std.add_images import processImage
     from PIL import Image
 
     if (modify_layout is not None):
