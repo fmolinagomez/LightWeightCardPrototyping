@@ -1,3 +1,4 @@
+
 import io
 import pathlib
 from functools import lru_cache
@@ -8,6 +9,18 @@ import card_model
 import layout
 
 from PIL import Image, ImageStat
+
+try:
+    _RESAMPLE = Image.Resampling.LANCZOS
+except AttributeError:
+    _RESAMPLE = Image.LANCZOS
+
+
+
+def _ensure_output_dir(deck: str) -> pathlib.Path:
+    path = pathlib.Path('decks') / deck / 'images'
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 try:
     _RESAMPLE = Image.Resampling.LANCZOS
@@ -120,6 +133,7 @@ def addImage(
     return image_copy
 
 
+
 def _relative_luminance_from_mean(mean_rgb):
     def _srgb_to_linear(value):
         if value <= 0.04045:
@@ -166,3 +180,4 @@ def load_full_frame_surface(card: card_model.CardModel, dpi: int):
         return None, None
 
     return _load_full_frame_surface_cached(str(card.image), dpi)
+

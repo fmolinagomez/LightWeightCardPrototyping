@@ -88,12 +88,14 @@ else:
 if (handle_images and not full_frame_images) or (modify_layout is not None):
     from add_images import BaseImage
 
+
 if handle_images and not full_frame_images:
     from add_images import addImage
     from add_images import processImage
 
 if handle_images and full_frame_images:
     from add_images import load_full_frame_surface
+
 
 if not os.path.exists('decks'):
     os.mkdir('decks')
@@ -131,11 +133,13 @@ if single_card_mode:
         ctx.set_matrix(layout.get_single_card_matrix(single_dpi))
         drawCard(card, ctx, text_color=text_color)
 
+
         card_filename = f"{index:03d}_{_slugify(card.nameStr)}.png"
         output_path = os.path.join(cards_output_dir, card_filename)
         surf.write_to_png(output_path)
 
         if handle_images and not full_frame_images:
+
             processImage(card, deck_name, dpi=single_dpi)
             baseImage = BaseImage(output_path)
             updated_image = addImage(card, baseImage, deck_name, dpi=single_dpi)
@@ -176,6 +180,7 @@ else:
             ctx.set_matrix(mat)
             drawCard(card, ctx, text_color=text_color)
 
+
         output_path = f'decks/{deck_name}/{deck_name}_p{page_number}.png'
         surf.write_to_png(output_path)
 
@@ -195,6 +200,7 @@ else:
 
         #import pdb;pdb.set_trace()
         if handle_images and not full_frame_images:
+
             page_dpi = layout.get_surface_dpi(surf)
             baseImage = BaseImage(output_path)
             for i in range (len(page)):
