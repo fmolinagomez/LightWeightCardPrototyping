@@ -9,8 +9,12 @@ class CardDeck:
         self.load(name)
 
     def load(self, name):
+        db_path = pathlib.Path(name)
 
-        with open(pathlib.Path(__file__).parent / name, encoding='utf-8') as dbFile:
+        if (not db_path.is_absolute()) and (not db_path.exists()):
+            db_path = pathlib.Path(__file__).parent / name
+
+        with open(db_path, encoding='utf-8') as dbFile:
             db = json.load(dbFile)
             self.cardDb = db
     def getDb(self):

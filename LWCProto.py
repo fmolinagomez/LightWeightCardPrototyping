@@ -173,9 +173,9 @@ else:
                 )
             baseImage.save(output_path)
 
-
 if not single_card_mode:
     with open(f'decks/{deck_name}/{deck_name}.csv', 'w') as deck_copy:
         filewriter = csv.writer(deck_copy)
         for element in list_copy:
             filewriter.writerow(element)
+
