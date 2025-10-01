@@ -1,13 +1,10 @@
-# LightWeightCardPrototiping
+# LightWeightCardPrototyping
 
 Genera cartas de forma rapida y sencilla para tus prototipos
 
 ## Descripcion
 
-Este proyecto esta basado en https://github.com/tilleraj/LightWeightMTGProxy, cerca del 80% del codigo les pertenece, sobre todo el relativo a la generacion de las cartas utilizando cairo
-
-## Descripcion
-El objetivo de este proyecto es facilitar la generacion de cartas para prototipos de juegos de mesa automatizando en la medida de lo posible las tareas de añadir una imagen asi como el texto relativo a la carta. Esta automatizacion se realiza definiendo la carta en un archivo de texto.
+Este proyecto esta basado en https://github.com/tilleraj/LightWeightMTGProxy, cerca del 80% del codigo les pertenece, sobre todo el relativo a la generacion de las cartas utilizando cairo. El objetivo de este proyecto es facilitar la generacion de cartas para prototipos de juegos de mesa automatizando en la medida de lo posible las tareas de añadir una imagen asi como el texto relativo a la carta. Esta automatizacion se realiza definiendo la carta en un archivo de texto.
 
 ## Primero Pasos
 
