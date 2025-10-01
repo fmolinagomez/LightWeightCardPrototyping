@@ -3,10 +3,10 @@ import card_model
 import layout
 
 def showWrappedText(
-    ctx: cairo.Context, 
-    text: str, 
-    top=0.0, 
-    left=0.0, 
+    ctx: cairo.Context,
+    text: str,
+    top=0.0,
+    left=0.0,
     right=None,
     lineHeight=12.0
 ):
@@ -37,7 +37,12 @@ def showWrappedText(
             currentOffset = currentOffset + lineHeight * 1.4
 
 
-def drawCard(card: card_model.CardModel , ctx: cairo.Context):
+def drawCard(
+    card: card_model.CardModel,
+    ctx: cairo.Context,
+    *,
+    text_color=(0.0, 0.0, 0.0),
+):
 
     #Set background colour
     #ctx.set_source_rgb(0.3, 0.3, 1.0)
@@ -46,20 +51,23 @@ def drawCard(card: card_model.CardModel , ctx: cairo.Context):
     ctx.select_font_face('serif')
     
     # Draw name
+    ctx.set_source_rgb(*text_color)
     ctx.set_font_size(layout.nameH)
     ctx.move_to(*layout.nameBL)
     ctx.show_text(card.nameStr)
 
     # Draw type
+    ctx.set_source_rgb(*text_color)
     ctx.set_font_size(layout.typeH)
     ctx.move_to(*layout.typeBL)
     ctx.show_text(card.typeStr)
 
     # Draw cardText
+    ctx.set_source_rgb(*text_color)
     ctx.set_font_size(layout.cardTextH)
     showWrappedText(ctx, card.cardText,
-        top=layout.cardTextBL[1], 
-        left=layout.cardTextBL[0], 
+        top=layout.cardTextBL[1],
+        left=layout.cardTextBL[0],
         right=layout.cardTextBL[0] + layout.cardTextW,
         lineHeight=layout.cardTextH
     )
@@ -67,14 +75,16 @@ def drawCard(card: card_model.CardModel , ctx: cairo.Context):
     # Draw power/toughness
     if card.power is not None:
         ptStr = str(card.power) + '/' + str(card.toughness)
+        ctx.set_source_rgb(*text_color)
         ctx.set_font_size(layout.ptH)
         ctx.move_to(*layout.ptBL)
         ctx.show_text(ptStr)
 
     # Draw Mana Cost
+    ctx.set_source_rgb(*text_color)
     ctx.set_font_size(layout.nameH)
     ctx.move_to(
-        layout.manaRight - ctx.text_extents(card.manaCost).width, 
+        layout.manaRight - ctx.text_extents(card.manaCost).width,
         layout.nameBL[1]
     )
     ctx.show_text(card.manaCost)
