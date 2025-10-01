@@ -29,7 +29,7 @@ def extant_file(x):
 
 ##### CLI args #####
 parser = argparse.ArgumentParser(description="Deck Generator for Game Designers")
-parser.add_argument('-d', '--deck', type=extant_file, help='csv file containing the deck', metavar="FILE", required=True)
+parser.add_argument('-d', '--deck', type=extant_file, help='csv file containing the deck', metavar="FILE")
 parser.add_argument('-c', '--cards', type=extant_file, help='json file containing cards description', metavar="FILE", required=True)
 
 parser.add_argument('-i', '--images', help='Add images to cards', action='store_true')
@@ -42,13 +42,39 @@ args = parser.parse_args()
 
 handle_images = args.images
 modify_layout = args.rgb
-deck_file = args.deck
 cards_file = args.cards
 single_card_mode = args.single_card
-#deck_file = './example_deck.csv'
-deck_name = os.path.basename(deck_file)[:-4]
+deck_file = args.deck
+
+if single_card_mode and deck_file is not None:
+    parser.error('the --single-card option cannot be used together with --deck/-d')
+
+if (not single_card_mode) and deck_file is None:
+    parser.error('the --deck/-d option is required unless --single-card is specified')
+
+cards = CardDeck(cards_file)
+
 nameList = []
 list_copy = []
+
+if single_card_mode:
+    deck_name = os.path.splitext(os.path.basename(cards_file))[0]
+    cardList = []
+    for entry in cards.getDb().values():
+        card = CardModel()
+        card.load(entry)
+        cardList.append(card)
+else:
+    deck_name = os.path.basename(deck_file)[:-4]
+    with open(deck_file, encoding='utf-8') as csvFile:
+        reader = csv.reader(csvFile)
+        list_copy.append(reader.__next__())
+        for row in reader:
+            list_copy.append(row)
+            nameList = nameList + [row[1]] * int(row[0])
+
+    cardList = [CardModel(name, cards.getDb()) for name in nameList]
+    pageList = [cardList[i:i+9] for i in range(0, len(cardList), 9)]
 
 if handle_images or (modify_layout is not None):
     from add_images import BaseImage
@@ -56,18 +82,6 @@ if handle_images or (modify_layout is not None):
 if handle_images:
     from add_images import addImage
     from add_images import processImage
-
-with open(deck_file, encoding='utf-8') as csvFile:
-    reader = csv.reader(csvFile)
-    list_copy.append(reader.__next__())
-    for row in reader:
-        list_copy.append(row)
-        nameList = nameList + [row[1]] * int(row[0])
-
-cards = CardDeck(cards_file)
-
-cardList = [CardModel(name,cards.getDb()) for name in nameList]
-pageList = [cardList[i:i+9] for i in range(0, len(cardList), 9)]
 
 if not os.path.exists('decks'):
     os.mkdir('decks')
@@ -159,8 +173,9 @@ else:
                 )
             baseImage.save(output_path)
 
+if not single_card_mode:
+    with open(f'decks/{deck_name}/{deck_name}.csv', 'w') as deck_copy:
+        filewriter = csv.writer(deck_copy)
+        for element in list_copy:
+            filewriter.writerow(element)
 
-with open(f'decks/{deck_name}/{deck_name}.csv', 'w') as deck_copy:
-    filewriter = csv.writer(deck_copy)
-    for element in list_copy:
-        filewriter.writerow(element)
