@@ -14,7 +14,6 @@ try:
 except AttributeError:
     _RESAMPLE = Image.LANCZOS
 
-
 def _ensure_output_dir(deck: str) -> pathlib.Path:
     path = pathlib.Path('decks') / deck / 'images'
     path.mkdir(parents=True, exist_ok=True)
@@ -166,3 +165,4 @@ def load_full_frame_surface(card: card_model.CardModel, dpi: int):
         return None, None
 
     return _load_full_frame_surface_cached(str(card.image), dpi)
+

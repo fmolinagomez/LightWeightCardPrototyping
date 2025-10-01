@@ -84,6 +84,7 @@ def get_single_card_surface(dpi: int = SINGLE_CARD_DPI) -> cairo.ImageSurface:
     ctx.set_source_rgba(0, 0, 0, 0)
     ctx.paint()
     ctx.set_operator(cairo.OPERATOR_OVER)
+
     return surface
 
 

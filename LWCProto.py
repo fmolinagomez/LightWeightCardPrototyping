@@ -122,6 +122,7 @@ if single_card_mode:
         ctx.set_source_rgb(1, 1, 1)
         ctx.paint()
 
+
         text_color = (0.0, 0.0, 0.0)
         if handle_images and full_frame_images:
             full_frame_surface, computed_color = load_full_frame_surface(card, single_dpi)
@@ -137,7 +138,6 @@ if single_card_mode:
         ctx.reset_clip()
         ctx.set_matrix(card_matrix)
         drawCard(card, ctx, text_color=text_color)
-
         card_filename = f"{index:03d}_{_slugify(card.nameStr)}.png"
         output_path = os.path.join(cards_output_dir, card_filename)
         surf.write_to_png(output_path)

@@ -43,8 +43,10 @@ def drawCard(
     *,
     text_color=(0.0, 0.0, 0.0),
 ):
+
     ctx.save()
     layout.clip_card(ctx)
+
 
     ctx.select_font_face('serif')
 
@@ -87,4 +89,6 @@ def drawCard(
     )
     ctx.show_text(card.manaCost)
 
+
     ctx.restore()
+
