@@ -44,12 +44,12 @@ def drawCard(
     text_color=(0.0, 0.0, 0.0),
 ):
 
-    #Set background colour
-    #ctx.set_source_rgb(0.3, 0.3, 1.0)
-    #ctx.paint()
+    ctx.save()
+    layout.clip_card(ctx)
+
 
     ctx.select_font_face('serif')
-    
+
     # Draw name
     ctx.set_source_rgb(*text_color)
     ctx.set_font_size(layout.nameH)
@@ -88,3 +88,7 @@ def drawCard(
         layout.nameBL[1]
     )
     ctx.show_text(card.manaCost)
+
+
+    ctx.restore()
+

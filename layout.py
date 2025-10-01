@@ -1,4 +1,6 @@
+import math
 import pathlib
+
 import cairo
 
 # Measurement helpers
@@ -33,6 +35,7 @@ deltaY = 90
 CARD_WIDTH_MM = 63
 CARD_HEIGHT_MM = 85
 SINGLE_CARD_DPI = 300
+CARD_CORNER_RADIUS_MM = 3.0
 
 
 def mm_to_pixels(value_mm: float, dpi: float) -> int:
@@ -77,8 +80,11 @@ def get_single_card_surface(dpi: int = SINGLE_CARD_DPI) -> cairo.ImageSurface:
     height_px = mm_to_pixels(CARD_HEIGHT_MM, dpi)
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width_px, height_px)
     ctx = cairo.Context(surface)
-    ctx.set_source_rgb(1, 1, 1)
+    ctx.set_operator(cairo.OPERATOR_SOURCE)
+    ctx.set_source_rgba(0, 0, 0, 0)
     ctx.paint()
+    ctx.set_operator(cairo.OPERATOR_OVER)
+
     return surface
 
 
@@ -86,3 +92,48 @@ def get_single_card_matrix(dpi: int = SINGLE_CARD_DPI):
     """Return a scaling matrix to draw cards using millimetre coordinates."""
     scale = dpi / MM_PER_INCH
     return cairo.Matrix(xx=scale, yy=scale)
+
+
+def _rounded_rectangle_path(ctx: cairo.Context, x: float, y: float, width: float, height: float, radius: float):
+    """Create a rounded rectangle path on the provided context."""
+    radius = min(radius, width / 2.0, height / 2.0)
+
+    ctx.new_sub_path()
+    ctx.arc(x + width - radius, y + radius, radius, -math.pi / 2.0, 0)
+    ctx.arc(x + width - radius, y + height - radius, radius, 0, math.pi / 2.0)
+    ctx.arc(x + radius, y + height - radius, radius, math.pi / 2.0, math.pi)
+    ctx.arc(x + radius, y + radius, radius, math.pi, 3 * math.pi / 2.0)
+    ctx.close_path()
+
+
+def clip_card(
+    ctx: cairo.Context,
+    *,
+    width_mm: float = CARD_WIDTH_MM,
+    height_mm: float = CARD_HEIGHT_MM,
+    radius_mm: float = CARD_CORNER_RADIUS_MM,
+):
+    """Clip the drawing context to the card bounds using rounded corners in millimetres."""
+
+    _rounded_rectangle_path(ctx, 0, 0, width_mm, height_mm, radius_mm)
+    ctx.clip()
+
+
+def clip_card_absolute(
+    ctx: cairo.Context,
+    origin_mm,
+    dpi: float,
+    *,
+    width_mm: float = CARD_WIDTH_MM,
+    height_mm: float = CARD_HEIGHT_MM,
+    radius_mm: float = CARD_CORNER_RADIUS_MM,
+):
+    """Clip the context to a card positioned on the page using absolute millimetre coordinates."""
+
+    origin_px = tuple(value / MM_PER_INCH * dpi for value in origin_mm)
+    width_px = width_mm / MM_PER_INCH * dpi
+    height_px = height_mm / MM_PER_INCH * dpi
+    radius_px = radius_mm / MM_PER_INCH * dpi
+
+    _rounded_rectangle_path(ctx, origin_px[0], origin_px[1], width_px, height_px, radius_px)
+    ctx.clip()

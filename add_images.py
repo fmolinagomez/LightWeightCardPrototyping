@@ -1,4 +1,3 @@
-
 import io
 import pathlib
 from functools import lru_cache
@@ -14,19 +13,6 @@ try:
     _RESAMPLE = Image.Resampling.LANCZOS
 except AttributeError:
     _RESAMPLE = Image.LANCZOS
-
-
-
-def _ensure_output_dir(deck: str) -> pathlib.Path:
-    path = pathlib.Path('decks') / deck / 'images'
-    path.mkdir(parents=True, exist_ok=True)
-    return path
-
-try:
-    _RESAMPLE = Image.Resampling.LANCZOS
-except AttributeError:
-    _RESAMPLE = Image.LANCZOS
-
 
 def _ensure_output_dir(deck: str) -> pathlib.Path:
     path = pathlib.Path('decks') / deck / 'images'
@@ -131,7 +117,6 @@ def addImage(
         mask = None
     image_copy.paste(card_image, position_px, mask)
     return image_copy
-
 
 
 def _relative_luminance_from_mean(mean_rgb):

@@ -88,14 +88,12 @@ else:
 if (handle_images and not full_frame_images) or (modify_layout is not None):
     from add_images import BaseImage
 
-
 if handle_images and not full_frame_images:
     from add_images import addImage
     from add_images import processImage
 
 if handle_images and full_frame_images:
     from add_images import load_full_frame_surface
-
 
 if not os.path.exists('decks'):
     os.mkdir('decks')
@@ -118,6 +116,13 @@ if single_card_mode:
         surf = layout.get_single_card_surface(single_dpi)
         ctx = cairo.Context(surf)
 
+        card_matrix = layout.get_single_card_matrix(single_dpi)
+        ctx.set_matrix(card_matrix)
+        layout.clip_card(ctx)
+        ctx.set_source_rgb(1, 1, 1)
+        ctx.paint()
+
+
         text_color = (0.0, 0.0, 0.0)
         if handle_images and full_frame_images:
             full_frame_surface, computed_color = load_full_frame_surface(card, single_dpi)
@@ -130,16 +135,14 @@ if single_card_mode:
                 if computed_color is not None:
                     text_color = computed_color
 
-        ctx.set_matrix(layout.get_single_card_matrix(single_dpi))
+        ctx.reset_clip()
+        ctx.set_matrix(card_matrix)
         drawCard(card, ctx, text_color=text_color)
-
-
         card_filename = f"{index:03d}_{_slugify(card.nameStr)}.png"
         output_path = os.path.join(cards_output_dir, card_filename)
         surf.write_to_png(output_path)
 
         if handle_images and not full_frame_images:
-
             processImage(card, deck_name, dpi=single_dpi)
             baseImage = BaseImage(output_path)
             updated_image = addImage(card, baseImage, deck_name, dpi=single_dpi)
@@ -164,12 +167,14 @@ else:
             if handle_images and full_frame_images:
                 full_frame_surface, computed_color = load_full_frame_surface(card, page_dpi)
                 if full_frame_surface is not None:
+                    card_origin_mm = layout.get_card_origin_mm(cardPos)
                     origin_px = layout.pair_mm_to_pixels(
-                        layout.get_card_origin_mm(cardPos),
+                        card_origin_mm,
                         page_dpi,
                     )
                     ctx.save()
                     ctx.identity_matrix()
+                    layout.clip_card_absolute(ctx, card_origin_mm, page_dpi)
                     ctx.set_source_surface(full_frame_surface, *origin_px)
                     ctx.paint()
                     ctx.restore()
@@ -179,7 +184,6 @@ else:
             mat = layout.getMatrix(*cardPos, surf)
             ctx.set_matrix(mat)
             drawCard(card, ctx, text_color=text_color)
-
 
         output_path = f'decks/{deck_name}/{deck_name}_p{page_number}.png'
         surf.write_to_png(output_path)
@@ -200,7 +204,6 @@ else:
 
         #import pdb;pdb.set_trace()
         if handle_images and not full_frame_images:
-
             page_dpi = layout.get_surface_dpi(surf)
             baseImage = BaseImage(output_path)
             for i in range (len(page)):
