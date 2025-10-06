@@ -12,7 +12,10 @@ class CardModelLoadTest(unittest.TestCase):
             "name": "Test Name",
             "type": "Creature",
             "subtype": "Wizard",
-            "text": "Draw a card",
+            "card_text": {
+                "text": "Draw a card",
+                "colour": "#112233",
+            },
             "manaCost": "{1}{U}",
             "power": 2,
             "toughness": 3,
@@ -25,6 +28,8 @@ class CardModelLoadTest(unittest.TestCase):
         self.assertEqual(card.nameStr, "Test Name")
         self.assertEqual(card.typeStr, "Creature - Wizard")
         self.assertEqual(card.cardText, "Draw a card")
+        self.assertEqual(card.cardTextColour, "#112233")
+        self.assertEqual(card.get_text_color_rgb(), (0x11 / 255.0, 0x22 / 255.0, 0x33 / 255.0))
         self.assertEqual(card.manaCost, "{1}{U}")
         self.assertEqual(card.power, 2)
         self.assertEqual(card.toughness, 3)
@@ -42,6 +47,8 @@ class CardModelLoadTest(unittest.TestCase):
         self.assertEqual(card.nameStr, "Vanilla")
         self.assertEqual(card.typeStr, "Creature")
         self.assertEqual(card.cardText, "")
+        self.assertEqual(card.cardTextColour, "#000000")
+        self.assertEqual(card.get_text_color_rgb(), (0.0, 0.0, 0.0))
         self.assertEqual(card.manaCost, "")
         self.assertIsNone(card.power)
         self.assertIsNone(card.toughness)

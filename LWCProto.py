@@ -35,7 +35,7 @@ parser.add_argument('-c', '--cards', type=extant_file, help='json file containin
 parser.add_argument('-i', '--images', help='Add images to cards', action='store_true')
 parser.add_argument(
     '--full-frame-images',
-    help='Scale images to cover the entire card and adjust text colour for contrast',
+    help='Scale images to cover the entire card using the configured text colour',
     action='store_true',
 )
 parser.add_argument('-r', '--rgb', help='Update layout card border colour with given R,G,B, only works with default layout', nargs=3, type=int)
@@ -123,17 +123,15 @@ if single_card_mode:
         ctx.paint()
 
 
-        text_color = (0.0, 0.0, 0.0)
+        text_color = card.get_text_color_rgb()
         if handle_images and full_frame_images:
-            full_frame_surface, computed_color = load_full_frame_surface(card, single_dpi)
+            full_frame_surface = load_full_frame_surface(card, single_dpi)
             if full_frame_surface is not None:
                 ctx.save()
                 ctx.identity_matrix()
                 ctx.set_source_surface(full_frame_surface, 0, 0)
                 ctx.paint()
                 ctx.restore()
-                if computed_color is not None:
-                    text_color = computed_color
 
         ctx.reset_clip()
         ctx.set_matrix(card_matrix)
@@ -163,9 +161,9 @@ else:
             print(cardPos)
             print(card)
 
-            text_color = (0.0, 0.0, 0.0)
+            text_color = card.get_text_color_rgb()
             if handle_images and full_frame_images:
-                full_frame_surface, computed_color = load_full_frame_surface(card, page_dpi)
+                full_frame_surface = load_full_frame_surface(card, page_dpi)
                 if full_frame_surface is not None:
                     card_origin_mm = layout.get_card_origin_mm(cardPos)
                     origin_px = layout.pair_mm_to_pixels(
@@ -178,8 +176,6 @@ else:
                     ctx.set_source_surface(full_frame_surface, *origin_px)
                     ctx.paint()
                     ctx.restore()
-                    if computed_color is not None:
-                        text_color = computed_color
 
             mat = layout.getMatrix(*cardPos, surf)
             ctx.set_matrix(mat)
