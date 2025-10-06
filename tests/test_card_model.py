@@ -25,6 +25,7 @@ class CardModelLoadTest(unittest.TestCase):
             "power": 2,
             "toughness": 3,
             "image": "wizard.png",
+            "full_frame_image": True,
         }
 
         card = CardModel()
@@ -45,6 +46,7 @@ class CardModelLoadTest(unittest.TestCase):
         self.assertEqual(card.power, 2)
         self.assertEqual(card.toughness, 3)
         self.assertEqual(card.image, "wizard.png")
+        self.assertTrue(card.imageFullFrame)
 
     def test_load_with_defaults(self):
         data = {
@@ -71,6 +73,38 @@ class CardModelLoadTest(unittest.TestCase):
         self.assertIsNone(card.power)
         self.assertIsNone(card.toughness)
         self.assertIsNone(card.image)
+        self.assertFalse(card.imageFullFrame)
+
+    def test_load_supports_image_object(self):
+        data = {
+            "header": {
+                "text": "Object Image",
+            },
+            "type": "Sorcery",
+            "image": {
+                "source": "object.png",
+                "full_frame": True,
+            },
+        }
+
+        card = CardModel()
+        card.load(data)
+
+        self.assertEqual(card.image, "object.png")
+        self.assertTrue(card.imageFullFrame)
+
+    def test_load_supports_legacy_name_field(self):
+        data = {
+            "name": "Legacy",
+            "type": "Enchantment",
+        }
+
+        card = CardModel()
+        card.load(data)
+
+        self.assertEqual(card.headerText, "Legacy")
+        self.assertEqual(card.headerColour, "#000000")
+        self.assertEqual(card.typeStr, "Enchantment")
 
     def test_load_supports_legacy_name_field(self):
         data = {

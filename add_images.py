@@ -134,7 +134,7 @@ def _load_full_frame_surface_cached(image_name: str, dpi: int):
 
 
 def load_full_frame_surface(card: card_model.CardModel, dpi: int):
-    if card.image is None:
+    if (card.image is None) or (not getattr(card, "imageFullFrame", False)):
         return None
 
     return _load_full_frame_surface_cached(str(card.image), dpi)

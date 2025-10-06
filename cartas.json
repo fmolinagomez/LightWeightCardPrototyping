@@ -31,6 +31,7 @@
         "manaCost": "2",
         "power": 60,
         "toughness": 9,
-        "image": "MinionNapoleonics.jpg"
+        "image": "MinionNapoleonics.jpg",
+        "full_frame_image": true
     }
 }

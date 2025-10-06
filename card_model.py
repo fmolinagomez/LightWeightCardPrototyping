@@ -33,6 +33,7 @@ class CardModel:
         self.power = None
         self.toughness = None
         self.image = None
+        self.imageFullFrame = False
 
         if (name is not None) and (db is not None):
             # self.load(db[name][0]) For magic AllCards need this index
@@ -82,10 +83,21 @@ class CardModel:
             self.power = None
             self.toughness = None
 
-        if 'image' in data:
-            self.image = data['image']
+        image_value = data.get('image')
+        image_full_frame = False
+
+        if isinstance(image_value, dict):
+            self.image = image_value.get('source')
+            image_full_frame = bool(image_value.get('full_frame', False))
         else:
+            self.image = image_value
+            image_full_frame = bool(data.get('full_frame_image', False))
+
+        if not self.image:
             self.image = None
+            image_full_frame = False
+
+        self.imageFullFrame = image_full_frame
 
     def __str__(self):
         return f'{self.headerText} - {self.manaCost} ({self.typeStr})'
