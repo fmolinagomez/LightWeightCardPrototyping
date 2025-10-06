@@ -1,25 +1,72 @@
 # .github/workflows/build-windows-exe.yml
 name: Build Windows EXE
-on: [push, workflow_dispatch]
+
+on:
+  push:
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      PYTHON_VERSION: "3.11"
+      PYINSTALLER_ENTRY: "LWCProto.py"
+      PYINSTALLER_NAME: "LightWeightCardPrototyping"
+      PYINSTALLER_ICON: ""
+      PYINSTALLER_ADDITIONAL_DATA: |
+        images;images
+      PYINSTALLER_ARTIFACT_NAME: "lightweight-card-prototyping-exe"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - name: Install deps
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        shell: pwsh
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller -r requirements.txt
-      - name: Build exe
+          if (Test-Path "requirements.txt") {
+            pip install -r "requirements.txt"
+          }
+          pip install pyinstaller
+
+      - name: Build executable
+        shell: pwsh
         run: |
-          pyinstaller --onefile --windowed --icon app.ico ^
-            --add-data "assets;assets" src/your_script.py
-      - name: Upload artifact
+          $arguments = @("--onefile", "--name", "${{ env.PYINSTALLER_NAME }}")
+
+          if ("${{ env.PYINSTALLER_ICON }}") {
+            $arguments += "--icon"
+            $arguments += "${{ env.PYINSTALLER_ICON }}"
+          }
+
+          if ("${{ env.PYINSTALLER_ADDITIONAL_DATA }}") {
+            $dataItems = "${{ env.PYINSTALLER_ADDITIONAL_DATA }}".Split([Environment]::NewLine) | Where-Object { $_.Trim() -ne "" }
+            foreach ($item in $dataItems) {
+              $arguments += "--add-data"
+              $arguments += $item.Trim()
+            }
+          }
+
+          $arguments += "${{ env.PYINSTALLER_ENTRY }}"
+          pyinstaller @arguments
+
+      - name: List dist contents
+        shell: pwsh
+        run: |
+          if (Test-Path "dist") {
+            Get-ChildItem -Recurse dist
+          } else {
+            Write-Host "dist folder was not created"
+          }
+
+      - name: Upload executable artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-windows-exe
+          name: ${{ env.PYINSTALLER_ARTIFACT_NAME }}
           path: dist/*.exe
+          if-no-files-found: error
