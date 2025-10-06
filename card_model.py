@@ -22,9 +22,13 @@ class CardDeck:
 
 class CardModel:
     def __init__(self, name=None, db=None):
-        self.nameStr = "NAME"
+        self.headerText = "HEADER"
+        self.headerColour = "#000000"
+        self.headerBanner = False
+        self.headerBannerColour = "#FFFFFF"
         self.typeStr = "TYPE - SUBTYPE"
         self.cardText = "Some text"
+        self.cardTextColour = "#000000"
         self.manaCost = "\{W\}"
         self.power = None
         self.toughness = None
@@ -35,27 +39,88 @@ class CardModel:
             self.load(db[name])
 
     def load(self, data: dict):
-        self.nameStr = data['name']
+        header = data.get('header')
+        if header is not None:
+            header = header or {}
+            self.headerText = header.get('text', '') or ''
+            self.headerColour = header.get('color', '#000000') or '#000000'
+            self.headerBanner = bool(header.get('banner', False))
+            self.headerBannerColour = header.get('banner_color', '#FFFFFF') or '#FFFFFF'
+        else:
+            name_value = data.get('name', '') or ''
+            self.headerText = name_value
+            self.headerColour = '#000000'
+            self.headerBanner = False
+            self.headerBannerColour = '#FFFFFF'
+
         self.typeStr = data['type']
 
         if ('subtype' in data):
             self.typeStr = self.typeStr + " - " + data['subtype']
 
-        if ('text' in data):
+        if 'card_text' in data:
+            card_text = data['card_text'] or {}
+            self.cardText = card_text.get('text', '')
+            self.cardTextColour = card_text.get('colour', '#000000') or '#000000'
+        elif 'text' in data:
+            # Backwards compatibility with older card definitions.
             self.cardText = data['text']
+            self.cardTextColour = '#000000'
         else:
             self.cardText = ""
-        
+            self.cardTextColour = '#000000'
+
         if ('manaCost' in data):
             self.manaCost = data['manaCost']
         else:
             self.manaCost = ""
-        
+
         if 'power' in data:
             self.power = int(data['power'])
             self.toughness = int(data['toughness'])
+        else:
+            self.power = None
+            self.toughness = None
+
         if 'image' in data:
             self.image = data['image']
+        else:
+            self.image = None
 
     def __str__(self):
-        return f'{self.nameStr} - {self.manaCost} ({self.typeStr})'
+        return f'{self.headerText} - {self.manaCost} ({self.typeStr})'
+
+    def get_text_color_rgb(self):
+        return self._hex_to_rgb(self.cardTextColour, default=(0.0, 0.0, 0.0))
+
+    def get_header_text_color_rgb(self):
+        return self._hex_to_rgb(self.headerColour, default=(0.0, 0.0, 0.0))
+
+    def get_header_banner_color_rgb(self):
+        return self._hex_to_rgb(self.headerBannerColour, default=(1.0, 1.0, 1.0))
+
+    @staticmethod
+    def _hex_to_rgb(colour: str, *, default):
+        value = (colour or '').strip()
+        if value.startswith('#'):
+            value = value[1:]
+
+        if len(value) != 6:
+            return default
+
+        try:
+            red = int(value[0:2], 16) / 255.0
+            green = int(value[2:4], 16) / 255.0
+            blue = int(value[4:6], 16) / 255.0
+        except ValueError:
+            return default
+
+        return (red, green, blue)
+
+    @property
+    def nameStr(self):
+        return self.headerText
+
+    @nameStr.setter
+    def nameStr(self, value):
+        self.headerText = value or ''

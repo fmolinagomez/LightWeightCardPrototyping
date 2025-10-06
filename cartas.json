@@ -1,23 +1,36 @@
 {
-    "Carta1":
-        {
-            "name": "nombre 1",
-            "type": "Evento",
-            "subtype": "Obligatorio",
-            "text": "este es un texto de prueba",
-            "manaCost": "5/6 * {r}",
-            "image": "BarcoPirata.jpg"
+    "Carta1": {
+        "header": {
+            "text": "nombre 1",
+            "color": "#000000",
+            "banner": false,
+            "banner_color": "#FFFFFF"
         },
-
-    "Carta2":
-        {
-            "name": "carta que te cagas",
-            "type": "Reaccion",
-            "subtype": "combate",
+        "type": "Evento",
+        "subtype": "Obligatorio",
+        "card_text": {
+            "text": "este es un texto de prueba",
+            "colour": "#000000"
+        },
+        "manaCost": "5/6 * {r}",
+        "image": "BarcoPirata.jpg"
+    },
+    "Carta2": {
+        "header": {
+            "text": "carta que te cagas",
+            "color": "#FFFFFF",
+            "banner": true,
+            "banner_color": "#000000"
+        },
+        "type": "Reaccion",
+        "subtype": "combate",
+        "card_text": {
             "text": "este es un texto de prueba para esta supercarta",
-            "manaCost": "2",
-            "power": 60,
-            "toughness": 9,
-            "image": "MinionNapoleonics.jpg"
-        }
+            "colour": "#FFFFFF"
+        },
+        "manaCost": "2",
+        "power": 60,
+        "toughness": 9,
+        "image": "MinionNapoleonics.jpg"
+    }
 }
