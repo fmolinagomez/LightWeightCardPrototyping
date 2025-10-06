@@ -40,8 +40,6 @@ def showWrappedText(
 def drawCard(
     card: card_model.CardModel,
     ctx: cairo.Context,
-    *,
-    text_color=(0.0, 0.0, 0.0),
 ):
 
     ctx.save()
@@ -50,20 +48,40 @@ def drawCard(
 
     ctx.select_font_face('serif')
 
-    # Draw name
-    ctx.set_source_rgb(*text_color)
+    header_color = card.get_header_text_color_rgb()
+    body_color = card.get_text_color_rgb()
+
     ctx.set_font_size(layout.nameH)
+
+    if card.headerBanner:
+        header_text = card.headerText or ''
+        text_extents = ctx.text_extents(header_text)
+        padding = 1.0
+        banner_top = layout.nameBL[1] + text_extents.y_bearing - padding
+        banner_height = text_extents.height + padding * 2
+        if banner_height <= 0:
+            banner_height = layout.nameH + padding * 2
+        banner_top = max(banner_top, 0.0)
+
+        ctx.save()
+        ctx.set_source_rgb(*card.get_header_banner_color_rgb())
+        ctx.rectangle(0, banner_top, layout.CARD_WIDTH_MM, banner_height)
+        ctx.fill()
+        ctx.restore()
+
+    # Draw header text
+    ctx.set_source_rgb(*header_color)
     ctx.move_to(*layout.nameBL)
-    ctx.show_text(card.nameStr)
+    ctx.show_text(card.headerText)
 
     # Draw type
-    ctx.set_source_rgb(*text_color)
+    ctx.set_source_rgb(*body_color)
     ctx.set_font_size(layout.typeH)
     ctx.move_to(*layout.typeBL)
     ctx.show_text(card.typeStr)
 
     # Draw cardText
-    ctx.set_source_rgb(*text_color)
+    ctx.set_source_rgb(*body_color)
     ctx.set_font_size(layout.cardTextH)
     showWrappedText(ctx, card.cardText,
         top=layout.cardTextBL[1],
@@ -75,13 +93,13 @@ def drawCard(
     # Draw power/toughness
     if card.power is not None:
         ptStr = str(card.power) + '/' + str(card.toughness)
-        ctx.set_source_rgb(*text_color)
+        ctx.set_source_rgb(*body_color)
         ctx.set_font_size(layout.ptH)
         ctx.move_to(*layout.ptBL)
         ctx.show_text(ptStr)
 
     # Draw Mana Cost
-    ctx.set_source_rgb(*text_color)
+    ctx.set_source_rgb(*body_color)
     ctx.set_font_size(layout.nameH)
     ctx.move_to(
         layout.manaRight - ctx.text_extents(card.manaCost).width,
