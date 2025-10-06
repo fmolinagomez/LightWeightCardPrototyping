@@ -12,7 +12,12 @@
             "text": "este es un texto de prueba",
             "colour": "#000000"
         },
-        "manaCost": "5/6 * {r}",
+        "background_color": "#F5F5F5",
+        "footer": {
+            "text": "footer carta 1",
+            "color": "#333333"
+        },
+        "commandPoints": "12/4",
         "image": "BarcoPirata.jpg"
     },
     "Carta2": {
@@ -28,7 +33,13 @@
             "text": "este es un texto de prueba para esta supercarta",
             "colour": "#FFFFFF"
         },
-        "manaCost": "2",
+        "background_color": "#002244",
+        "footer": {
+            "text": "footer destacado",
+            "color": "#FFD700",
+            "font_style": "negrita"
+        },
+        "commandPoints": 7,
         "power": 60,
         "toughness": 9,
         "image": "MinionNapoleonics.jpg",

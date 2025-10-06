@@ -45,6 +45,10 @@ def drawCard(
     ctx.save()
     layout.clip_card(ctx)
 
+    if not card.imageFullFrame:
+        ctx.set_source_rgb(*card.get_background_color_rgb())
+        ctx.paint()
+
 
     ctx.select_font_face('serif')
 
@@ -98,14 +102,77 @@ def drawCard(
         ctx.move_to(*layout.ptBL)
         ctx.show_text(ptStr)
 
-    # Draw Mana Cost
-    ctx.set_source_rgb(*body_color)
-    ctx.set_font_size(layout.nameH)
-    ctx.move_to(
-        layout.manaRight - ctx.text_extents(card.manaCost).width,
-        layout.nameBL[1]
-    )
-    ctx.show_text(card.manaCost)
+    # Draw command points shield
+    ctx.save()
+    base_shield_x, shield_y = layout.commandPointsShieldTL
+    shield_width, shield_height = layout.commandPointsShieldSize
+    point_height = layout.commandPointsShieldPointHeight
+    gap = getattr(layout, "commandPointsShieldGap", 0.0)
+
+    shield_values = []
+    if card.commandPointsSecondary is not None:
+        secondary_x = base_shield_x - shield_width - gap
+        shield_values.append((card.commandPointsSecondary, secondary_x, True))
+
+    shield_values.append((card.commandPoints, base_shield_x, False))
+
+    ctx.select_font_face('serif', cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+    for value, shield_x, invert in shield_values:
+        ctx.save()
+        ctx.move_to(shield_x, shield_y)
+        ctx.line_to(shield_x + shield_width, shield_y)
+        ctx.line_to(shield_x + shield_width, shield_y + shield_height * 0.65)
+        ctx.line_to(shield_x + shield_width / 2.0, shield_y + shield_height + point_height)
+        ctx.line_to(shield_x, shield_y + shield_height * 0.65)
+        ctx.close_path()
+
+        if invert:
+            ctx.set_source_rgb(0.0, 0.0, 0.0)
+            ctx.fill_preserve()
+            ctx.set_line_width(layout.commandPointsBorderWidth)
+            ctx.set_source_rgb(0.0, 0.0, 0.0)
+            ctx.stroke()
+            text_color = (1.0, 1.0, 1.0)
+        else:
+            ctx.set_source_rgb(1.0, 1.0, 1.0)
+            ctx.fill_preserve()
+            ctx.set_line_width(layout.commandPointsBorderWidth)
+            ctx.set_source_rgb(0.0, 0.0, 0.0)
+            ctx.stroke()
+            text_color = (0.0, 0.0, 0.0)
+
+        ctx.set_font_size(layout.commandPointsFontSize)
+        text = str(value)
+        extents = ctx.text_extents(text)
+        center_x = shield_x + shield_width / 2.0
+        center_y = shield_y + (shield_height + point_height) / 2.0
+        text_x = center_x - (extents.x_bearing + extents.width / 2.0)
+        text_y = center_y - (extents.y_bearing + extents.height / 2.0)
+
+        ctx.set_source_rgb(*text_color)
+        ctx.move_to(text_x, text_y)
+        ctx.show_text(text)
+        ctx.restore()
+
+    ctx.select_font_face('serif')
+    ctx.restore()
+
+    # Draw footer text
+    if card.footerText:
+        footer_slant = cairo.FONT_SLANT_NORMAL
+        footer_weight = cairo.FONT_WEIGHT_NORMAL
+
+        if card.footerFontStyle == 'italic':
+            footer_slant = cairo.FONT_SLANT_ITALIC
+        if card.footerFontStyle == 'bold':
+            footer_weight = cairo.FONT_WEIGHT_BOLD
+
+        ctx.set_source_rgb(*card.get_footer_text_color_rgb())
+        ctx.set_font_size(layout.footerH)
+        ctx.select_font_face('serif', footer_slant, footer_weight)
+        ctx.move_to(*layout.footerBL)
+        ctx.show_text(card.footerText)
+        ctx.select_font_face('serif')
 
 
     ctx.restore()
