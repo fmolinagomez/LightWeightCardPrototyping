@@ -30,6 +30,7 @@ class CardModel:
         self.cardText = "Some text"
         self.cardTextColour = "#000000"
         self.commandPoints = 0
+        self.commandPointsSecondary = None
         self.power = None
         self.toughness = None
         self.image = None
@@ -79,7 +80,9 @@ class CardModel:
         if command_points_value is None:
             command_points_value = data.get('manaCost')
 
-        self.commandPoints = self._parse_command_points(command_points_value)
+        primary, secondary = self._parse_command_points(command_points_value)
+        self.commandPoints = primary
+        self.commandPointsSecondary = secondary
 
         if 'power' in data:
             self.power = int(data['power'])
@@ -119,7 +122,7 @@ class CardModel:
         self.footerFontStyle = self._normalise_footer_style(footer_style)
 
     def __str__(self):
-        return f'{self.headerText} - {self.commandPoints} ({self.typeStr})'
+        return f'{self.headerText} - {self.get_command_points_display()} ({self.typeStr})'
 
     def get_text_color_rgb(self):
         return self._hex_to_rgb(self.cardTextColour, default=(0.0, 0.0, 0.0))
@@ -180,23 +183,43 @@ class CardModel:
 
         return style_map.get(normalised, 'normal')
 
+    def get_command_points_display(self) -> str:
+        if self.commandPointsSecondary is None:
+            return str(self.commandPoints)
+
+        return f'{self.commandPoints}/{self.commandPointsSecondary}'
+
     @staticmethod
-    def _parse_command_points(value) -> int:
+    def _parse_command_points(value):
         if value is None:
-            return 0
+            return (0, None)
 
         if isinstance(value, (int, float)):
-            return int(value)
+            return (int(value), None)
 
         text = str(value).strip()
         if not text:
-            return 0
+            return (0, None)
 
-        digits = ''.join(ch for ch in text if ch.isdigit() or ch == '-')
-        if not digits:
-            return 0
+        def _coerce(part, *, allow_none: bool = False):
+            digits = ''.join(ch for ch in part if ch.isdigit() or ch == '-')
+            if not digits:
+                return None if allow_none else 0
 
-        try:
-            return int(digits)
-        except ValueError:
-            return 0
+            try:
+                return int(digits)
+            except ValueError:
+                return None if allow_none else 0
+
+        if '/' in text:
+            left, right = text.split('/', 1)
+            primary = _coerce(left)
+            secondary = _coerce(right, allow_none=True)
+            if primary is None:
+                primary = 0
+            return (primary, secondary)
+
+        primary = _coerce(text)
+        if primary is None:
+            primary = 0
+        return (primary, None)

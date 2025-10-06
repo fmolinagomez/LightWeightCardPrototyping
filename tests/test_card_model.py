@@ -44,6 +44,8 @@ class CardModelLoadTest(unittest.TestCase):
         self.assertEqual(card.cardTextColour, "#112233")
         self.assertEqual(card.get_text_color_rgb(), (0x11 / 255.0, 0x22 / 255.0, 0x33 / 255.0))
         self.assertEqual(card.commandPoints, 5)
+        self.assertIsNone(card.commandPointsSecondary)
+        self.assertEqual(card.get_command_points_display(), "5")
         self.assertEqual(card.power, 2)
         self.assertEqual(card.toughness, 3)
         self.assertEqual(card.image, "wizard.png")
@@ -73,6 +75,8 @@ class CardModelLoadTest(unittest.TestCase):
         self.assertEqual(card.cardTextColour, "#000000")
         self.assertEqual(card.get_text_color_rgb(), (0.0, 0.0, 0.0))
         self.assertEqual(card.commandPoints, 0)
+        self.assertIsNone(card.commandPointsSecondary)
+        self.assertEqual(card.get_command_points_display(), "0")
         self.assertIsNone(card.power)
         self.assertIsNone(card.toughness)
         self.assertIsNone(card.image)
@@ -111,6 +115,7 @@ class CardModelLoadTest(unittest.TestCase):
         card.load(data)
 
         self.assertEqual(card.commandPoints, 12)
+        self.assertIsNone(card.commandPointsSecondary)
 
     def test_load_coerces_string_command_points(self):
         data = {
@@ -125,6 +130,23 @@ class CardModelLoadTest(unittest.TestCase):
         card.load(data)
 
         self.assertEqual(card.commandPoints, 8)
+        self.assertIsNone(card.commandPointsSecondary)
+
+    def test_load_parses_split_command_points(self):
+        data = {
+            "header": {
+                "text": "Split",
+            },
+            "type": "Sorcery",
+            "commandPoints": "3/7",
+        }
+
+        card = CardModel()
+        card.load(data)
+
+        self.assertEqual(card.commandPoints, 3)
+        self.assertEqual(card.commandPointsSecondary, 7)
+        self.assertEqual(card.get_command_points_display(), "3/7")
 
     def test_load_supports_legacy_name_field(self):
         data = {

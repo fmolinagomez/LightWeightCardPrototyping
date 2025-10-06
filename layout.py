@@ -36,11 +36,12 @@ CARD_HEIGHT_MM = 85
 SINGLE_CARD_DPI = 300
 CARD_CORNER_RADIUS_MM = 3.0
 
-commandPointsShieldTL = (CARD_WIDTH_MM - 12.0, 4.0)
-commandPointsShieldSize = (9.0, 9.5)
-commandPointsShieldPointHeight = 3.0
-commandPointsFontSize = 4.0
-commandPointsBorderWidth = 0.5
+commandPointsShieldTL = (CARD_WIDTH_MM - 9.5, 4.0)
+commandPointsShieldSize = (7.2, 8.0)
+commandPointsShieldPointHeight = 2.4
+commandPointsFontSize = 3.6
+commandPointsBorderWidth = 0.45
+commandPointsShieldGap = 1.0
 
 
 def mm_to_pixels(value_mm: float, dpi: float) -> int:

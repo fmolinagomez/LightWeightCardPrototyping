@@ -70,7 +70,7 @@ El archivo de definicion de cartas es un archivo en jormato json con el siguente
                 "color": "#RRGGBB",
                 "font_style": "normal | negrita | itálica"
             },
-            "commandPoints": int,
+            "commandPoints": int | "X/Y",
             "power": int,
             "toughness": int,
             "image": "str",
@@ -82,7 +82,7 @@ El archivo de definicion de cartas es un archivo en jormato json con el siguente
 El objeto `header` define el texto visible en la parte superior de la carta. El campo `color` ajusta el color del texto, mientras que los campos `banner` y `banner_color` permiten activar un recuadro de color sólido detrás del encabezado cuando sea necesario.
 El bloque `card_text` permite especificar el texto del cuerpo y el color con el que debe renderizarse. Para las imágenes puedes indicar un nombre de archivo directamente o un objeto con las claves `source` y `full_frame`. Cuando `full_frame_image` (o `full_frame` en el objeto de imagen) es `true`, la ilustración se ampliará para cubrir toda la carta; en caso contrario se mantendrá dentro del marco de arte.
 Puedes controlar el color de fondo del lienzo con el campo opcional `background_color`. Debe indicarse en formato hexadecimal (`#RRGGBB`) y solo se aplica cuando la carta no utiliza una imagen a pantalla completa (`full_frame_image: false`).
-El valor `commandPoints` representa los puntos de mando de la carta. Siempre se mostrará como un número dentro de un escudo con borde negro en la esquina superior derecha.
+El valor `commandPoints` representa los puntos de mando de la carta. Se mostrará en negrita dentro de un escudo más pequeño con borde negro en la esquina superior derecha. Cuando el valor tenga el formato `X/Y`, se dibujará un segundo escudo del mismo tamaño a la izquierda, con fondo negro y el valor `Y` en blanco y negrita.
 El bloque `footer` es opcional y permite mostrar una nota en la parte inferior de la carta. Puedes personalizar el texto, su color y el estilo de fuente (`normal`, `negrita` o `itálica`). Si no se especifica `font_style`, se utilizará `normal` por defecto.
 Las imagenes deben almacenarse en el directorio "images" que se encuentra en la misma carpeta que LWCProto.py, el formato de las imagenes es indiferente y su tamaño tambien estas seran redimensionadas automaticamente para adaptarse al tamaño disponible en el layout. Puedes utilizar el argumento `--output-dir` para indicar otro directorio base donde almacenar las cartas generadas, lo que facilita mantener varios prototipos separados.
 

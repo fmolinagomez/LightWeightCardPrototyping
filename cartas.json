@@ -17,7 +17,7 @@
             "text": "footer carta 1",
             "color": "#333333"
         },
-        "commandPoints": 12,
+        "commandPoints": "12/4",
         "image": "BarcoPirata.jpg"
     },
     "Carta2": {
