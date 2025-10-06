@@ -123,7 +123,6 @@ if single_card_mode:
         ctx.paint()
 
 
-        text_color = card.get_text_color_rgb()
         if handle_images and full_frame_images:
             full_frame_surface = load_full_frame_surface(card, single_dpi)
             if full_frame_surface is not None:
@@ -135,8 +134,8 @@ if single_card_mode:
 
         ctx.reset_clip()
         ctx.set_matrix(card_matrix)
-        drawCard(card, ctx, text_color=text_color)
-        card_filename = f"{index:03d}_{_slugify(card.nameStr)}.png"
+        drawCard(card, ctx)
+        card_filename = f"{index:03d}_{_slugify(card.headerText)}.png"
         output_path = os.path.join(cards_output_dir, card_filename)
         surf.write_to_png(output_path)
 
@@ -161,7 +160,6 @@ else:
             print(cardPos)
             print(card)
 
-            text_color = card.get_text_color_rgb()
             if handle_images and full_frame_images:
                 full_frame_surface = load_full_frame_surface(card, page_dpi)
                 if full_frame_surface is not None:
@@ -179,7 +177,7 @@ else:
 
             mat = layout.getMatrix(*cardPos, surf)
             ctx.set_matrix(mat)
-            drawCard(card, ctx, text_color=text_color)
+            drawCard(card, ctx)
 
         output_path = f'decks/{deck_name}/{deck_name}_p{page_number}.png'
         surf.write_to_png(output_path)

@@ -9,7 +9,12 @@ from card_model import CardModel, CardDeck
 class CardModelLoadTest(unittest.TestCase):
     def test_load_with_optional_fields(self):
         data = {
-            "name": "Test Name",
+            "header": {
+                "text": "Test Name",
+                "color": "#ABCDEF",
+                "banner": True,
+                "banner_color": "#445566",
+            },
             "type": "Creature",
             "subtype": "Wizard",
             "card_text": {
@@ -25,7 +30,13 @@ class CardModelLoadTest(unittest.TestCase):
         card = CardModel()
         card.load(data)
 
+        self.assertEqual(card.headerText, "Test Name")
         self.assertEqual(card.nameStr, "Test Name")
+        self.assertEqual(card.headerColour, "#ABCDEF")
+        self.assertTrue(card.headerBanner)
+        self.assertEqual(card.headerBannerColour, "#445566")
+        self.assertEqual(card.get_header_text_color_rgb(), (0xAB / 255.0, 0xCD / 255.0, 0xEF / 255.0))
+        self.assertEqual(card.get_header_banner_color_rgb(), (0x44 / 255.0, 0x55 / 255.0, 0x66 / 255.0))
         self.assertEqual(card.typeStr, "Creature - Wizard")
         self.assertEqual(card.cardText, "Draw a card")
         self.assertEqual(card.cardTextColour, "#112233")
@@ -35,16 +46,23 @@ class CardModelLoadTest(unittest.TestCase):
         self.assertEqual(card.toughness, 3)
         self.assertEqual(card.image, "wizard.png")
 
-    def test_load_without_optional_fields(self):
+    def test_load_with_defaults(self):
         data = {
-            "name": "Vanilla",
+            "header": {
+                "text": "Vanilla",
+            },
             "type": "Creature",
         }
 
         card = CardModel()
         card.load(data)
 
-        self.assertEqual(card.nameStr, "Vanilla")
+        self.assertEqual(card.headerText, "Vanilla")
+        self.assertFalse(card.headerBanner)
+        self.assertEqual(card.headerColour, "#000000")
+        self.assertEqual(card.headerBannerColour, "#FFFFFF")
+        self.assertEqual(card.get_header_text_color_rgb(), (0.0, 0.0, 0.0))
+        self.assertEqual(card.get_header_banner_color_rgb(), (1.0, 1.0, 1.0))
         self.assertEqual(card.typeStr, "Creature")
         self.assertEqual(card.cardText, "")
         self.assertEqual(card.cardTextColour, "#000000")
@@ -54,12 +72,27 @@ class CardModelLoadTest(unittest.TestCase):
         self.assertIsNone(card.toughness)
         self.assertIsNone(card.image)
 
+    def test_load_supports_legacy_name_field(self):
+        data = {
+            "name": "Legacy",
+            "type": "Enchantment",
+        }
+
+        card = CardModel()
+        card.load(data)
+
+        self.assertEqual(card.headerText, "Legacy")
+        self.assertEqual(card.headerColour, "#000000")
+        self.assertEqual(card.typeStr, "Enchantment")
+
 
 class CardDeckLoadTest(unittest.TestCase):
     def test_load_uses_provided_path(self):
         cards = {
             "Example": {
-                "name": "Example",
+                "header": {
+                    "text": "Example",
+                },
                 "type": "Artifact",
             }
         }
