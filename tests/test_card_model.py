@@ -21,11 +21,12 @@ class CardModelLoadTest(unittest.TestCase):
                 "text": "Draw a card",
                 "colour": "#112233",
             },
-            "manaCost": "{1}{U}",
+            "commandPoints": 5,
             "power": 2,
             "toughness": 3,
             "image": "wizard.png",
             "full_frame_image": True,
+            "background_color": "#123456",
         }
 
         card = CardModel()
@@ -42,11 +43,13 @@ class CardModelLoadTest(unittest.TestCase):
         self.assertEqual(card.cardText, "Draw a card")
         self.assertEqual(card.cardTextColour, "#112233")
         self.assertEqual(card.get_text_color_rgb(), (0x11 / 255.0, 0x22 / 255.0, 0x33 / 255.0))
-        self.assertEqual(card.manaCost, "{1}{U}")
+        self.assertEqual(card.commandPoints, 5)
         self.assertEqual(card.power, 2)
         self.assertEqual(card.toughness, 3)
         self.assertEqual(card.image, "wizard.png")
         self.assertTrue(card.imageFullFrame)
+        self.assertEqual(card.backgroundColour, "#123456")
+        self.assertEqual(card.get_background_color_rgb(), (0x12 / 255.0, 0x34 / 255.0, 0x56 / 255.0))
 
     def test_load_with_defaults(self):
         data = {
@@ -69,11 +72,13 @@ class CardModelLoadTest(unittest.TestCase):
         self.assertEqual(card.cardText, "")
         self.assertEqual(card.cardTextColour, "#000000")
         self.assertEqual(card.get_text_color_rgb(), (0.0, 0.0, 0.0))
-        self.assertEqual(card.manaCost, "")
+        self.assertEqual(card.commandPoints, 0)
         self.assertIsNone(card.power)
         self.assertIsNone(card.toughness)
         self.assertIsNone(card.image)
         self.assertFalse(card.imageFullFrame)
+        self.assertEqual(card.backgroundColour, "#FFFFFF")
+        self.assertEqual(card.get_background_color_rgb(), (1.0, 1.0, 1.0))
 
     def test_load_supports_image_object(self):
         data = {
@@ -92,6 +97,34 @@ class CardModelLoadTest(unittest.TestCase):
 
         self.assertEqual(card.image, "object.png")
         self.assertTrue(card.imageFullFrame)
+
+    def test_load_legacy_mana_cost_field(self):
+        data = {
+            "header": {
+                "text": "Legacy",
+            },
+            "type": "Enchantment",
+            "manaCost": "12",
+        }
+
+        card = CardModel()
+        card.load(data)
+
+        self.assertEqual(card.commandPoints, 12)
+
+    def test_load_coerces_string_command_points(self):
+        data = {
+            "header": {
+                "text": "Numbers",
+            },
+            "type": "Instant",
+            "commandPoints": " CP: 08 ",
+        }
+
+        card = CardModel()
+        card.load(data)
+
+        self.assertEqual(card.commandPoints, 8)
 
     def test_load_supports_legacy_name_field(self):
         data = {
