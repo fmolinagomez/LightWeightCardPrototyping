@@ -34,6 +34,10 @@ class CardModel:
         self.toughness = None
         self.image = None
         self.imageFullFrame = False
+        self.footerText = ""
+        self.footerColour = "#000000"
+        self.footerFontStyle = "normal"
+        self.backgroundColour = "#FFFFFF"
 
         if (name is not None) and (db is not None):
             # self.load(db[name][0]) For magic AllCards need this index
@@ -99,6 +103,20 @@ class CardModel:
 
         self.imageFullFrame = image_full_frame
 
+        self.backgroundColour = data.get('background_color', '#FFFFFF') or '#FFFFFF'
+
+        footer = data.get('footer') or {}
+        self.footerText = footer.get('text', '') or ''
+        self.footerColour = footer.get('color', '#000000') or '#000000'
+        footer_style = footer.get('font_style')
+        if footer_style is None:
+            footer_style = footer.get('style')
+        if footer_style is None:
+            footer_style = footer.get('font')
+        if footer_style is None:
+            footer_style = footer.get('tipo')
+        self.footerFontStyle = self._normalise_footer_style(footer_style)
+
     def __str__(self):
         return f'{self.headerText} - {self.manaCost} ({self.typeStr})'
 
@@ -110,6 +128,12 @@ class CardModel:
 
     def get_header_banner_color_rgb(self):
         return self._hex_to_rgb(self.headerBannerColour, default=(1.0, 1.0, 1.0))
+
+    def get_footer_text_color_rgb(self):
+        return self._hex_to_rgb(self.footerColour, default=(0.0, 0.0, 0.0))
+
+    def get_background_color_rgb(self):
+        return self._hex_to_rgb(self.backgroundColour, default=(1.0, 1.0, 1.0))
 
     @staticmethod
     def _hex_to_rgb(colour: str, *, default):
@@ -136,3 +160,21 @@ class CardModel:
     @nameStr.setter
     def nameStr(self, value):
         self.headerText = value or ''
+
+    @staticmethod
+    def _normalise_footer_style(value: str) -> str:
+        if not value:
+            return 'normal'
+
+        normalised = value.strip().lower()
+        style_map = {
+            'normal': 'normal',
+            'bold': 'bold',
+            'negrita': 'bold',
+            'italic': 'italic',
+            'italica': 'italic',
+            'itálica': 'italic',
+            'itálica': 'italic',
+        }
+
+        return style_map.get(normalised, 'normal')

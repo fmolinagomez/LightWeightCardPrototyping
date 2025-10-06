@@ -12,6 +12,11 @@
             "text": "este es un texto de prueba",
             "colour": "#000000"
         },
+        "background_color": "#F5F5F5",
+        "footer": {
+            "text": "footer carta 1",
+            "color": "#333333"
+        },
         "manaCost": "5/6 * {r}",
         "image": "BarcoPirata.jpg"
     },
@@ -27,6 +32,12 @@
         "card_text": {
             "text": "este es un texto de prueba para esta supercarta",
             "colour": "#FFFFFF"
+        },
+        "background_color": "#002244",
+        "footer": {
+            "text": "footer destacado",
+            "color": "#FFD700",
+            "font_style": "negrita"
         },
         "manaCost": "2",
         "power": 60,
