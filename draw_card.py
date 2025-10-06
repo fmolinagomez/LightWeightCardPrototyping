@@ -107,6 +107,23 @@ def drawCard(
     )
     ctx.show_text(card.manaCost)
 
+    # Draw footer text
+    if card.footerText:
+        footer_slant = cairo.FONT_SLANT_NORMAL
+        footer_weight = cairo.FONT_WEIGHT_NORMAL
+
+        if card.footerFontStyle == 'italic':
+            footer_slant = cairo.FONT_SLANT_ITALIC
+        if card.footerFontStyle == 'bold':
+            footer_weight = cairo.FONT_WEIGHT_BOLD
+
+        ctx.set_source_rgb(*card.get_footer_text_color_rgb())
+        ctx.set_font_size(layout.footerH)
+        ctx.select_font_face('serif', footer_slant, footer_weight)
+        ctx.move_to(*layout.footerBL)
+        ctx.show_text(card.footerText)
+        ctx.select_font_face('serif')
+
 
     ctx.restore()
 

@@ -1,6 +1,7 @@
 import io
 import pathlib
 from functools import lru_cache
+from typing import Union
 
 import cairo
 
@@ -14,8 +15,20 @@ try:
 except AttributeError:
     _RESAMPLE = Image.LANCZOS
 
-def _ensure_output_dir(deck: str) -> pathlib.Path:
-    path = pathlib.Path('decks') / deck / 'images'
+def _ensure_output_dir(deck: str, root: Union[pathlib.Path, str] = 'decks') -> pathlib.Path:
+    """Return the directory used to store processed images for a deck.
+
+    Parameters
+    ----------
+    deck:
+        Name of the deck currently being processed.
+    root:
+        Base output directory where decks are stored. Defaults to ``decks``
+        to remain backwards compatible with previous behaviour.
+    """
+
+    base_path = pathlib.Path(root)
+    path = base_path / deck / 'images'
     path.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -55,12 +68,13 @@ def processImage(
     *,
     size_mm=layout.ART_SIZE_MM,
     dpi: int = layout.SINGLE_CARD_DPI,
+    output_root: Union[pathlib.Path, str] = 'decks',
 ):
     if card.image is None:
         return
 
     size_px = layout.pair_mm_to_pixels(size_mm, dpi)
-    output_dir = _ensure_output_dir(deck)
+    output_dir = _ensure_output_dir(deck, output_root)
     destination = output_dir / str(card.image)
 
     if destination.exists():
@@ -87,12 +101,13 @@ def addImage(
     position_mm=None,
     size_mm=layout.ART_SIZE_MM,
     dpi: int = layout.SINGLE_CARD_DPI,
+    output_root: Union[pathlib.Path, str] = 'decks',
 ):
 
     if card.image is None:
         return base.get()
 
-    output_dir = _ensure_output_dir(deck)
+    output_dir = _ensure_output_dir(deck, output_root)
     image_path = output_dir / str(card.image)
 
     try:
