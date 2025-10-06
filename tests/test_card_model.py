@@ -106,6 +106,19 @@ class CardModelLoadTest(unittest.TestCase):
         self.assertEqual(card.headerColour, "#000000")
         self.assertEqual(card.typeStr, "Enchantment")
 
+    def test_load_supports_legacy_name_field(self):
+        data = {
+            "name": "Legacy",
+            "type": "Enchantment",
+        }
+
+        card = CardModel()
+        card.load(data)
+
+        self.assertEqual(card.headerText, "Legacy")
+        self.assertEqual(card.headerColour, "#000000")
+        self.assertEqual(card.typeStr, "Enchantment")
+
 
 class CardDeckLoadTest(unittest.TestCase):
     def test_load_uses_provided_path(self):
