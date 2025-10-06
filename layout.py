@@ -21,6 +21,8 @@ cardTextH = 2.2
 cardTextW = 51
 ptBL = (50.5,82)
 ptH = 3
+footerBL = (6,82)
+footerH = 1.8
 
 # Artwork measurements (relative to a single card origin)
 ART_OFFSET_MM = (5.47, 10.933333333333332)
