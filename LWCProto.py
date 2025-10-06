@@ -138,8 +138,9 @@ def render_single_cards(
         card_matrix = layout.get_single_card_matrix(single_dpi)
         ctx.set_matrix(card_matrix)
         layout.clip_card(ctx)
-        ctx.set_source_rgb(1, 1, 1)
-        ctx.paint()
+        if card.imageFullFrame:
+            ctx.set_source_rgb(1, 1, 1)
+            ctx.paint()
 
         if handle_images and card.imageFullFrame:
             _require_image_helpers(load_full_frame_surface_fn)

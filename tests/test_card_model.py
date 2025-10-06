@@ -26,6 +26,7 @@ class CardModelLoadTest(unittest.TestCase):
             "toughness": 3,
             "image": "wizard.png",
             "full_frame_image": True,
+            "background_color": "#123456",
         }
 
         card = CardModel()
@@ -47,6 +48,8 @@ class CardModelLoadTest(unittest.TestCase):
         self.assertEqual(card.toughness, 3)
         self.assertEqual(card.image, "wizard.png")
         self.assertTrue(card.imageFullFrame)
+        self.assertEqual(card.backgroundColour, "#123456")
+        self.assertEqual(card.get_background_color_rgb(), (0x12 / 255.0, 0x34 / 255.0, 0x56 / 255.0))
 
     def test_load_with_defaults(self):
         data = {
@@ -74,6 +77,8 @@ class CardModelLoadTest(unittest.TestCase):
         self.assertIsNone(card.toughness)
         self.assertIsNone(card.image)
         self.assertFalse(card.imageFullFrame)
+        self.assertEqual(card.backgroundColour, "#FFFFFF")
+        self.assertEqual(card.get_background_color_rgb(), (1.0, 1.0, 1.0))
 
     def test_load_supports_image_object(self):
         data = {

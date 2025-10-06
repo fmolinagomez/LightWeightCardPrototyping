@@ -37,6 +37,7 @@ class CardModel:
         self.footerText = ""
         self.footerColour = "#000000"
         self.footerFontStyle = "normal"
+        self.backgroundColour = "#FFFFFF"
 
         if (name is not None) and (db is not None):
             # self.load(db[name][0]) For magic AllCards need this index
@@ -102,6 +103,8 @@ class CardModel:
 
         self.imageFullFrame = image_full_frame
 
+        self.backgroundColour = data.get('background_color', '#FFFFFF') or '#FFFFFF'
+
         footer = data.get('footer') or {}
         self.footerText = footer.get('text', '') or ''
         self.footerColour = footer.get('color', '#000000') or '#000000'
@@ -128,6 +131,9 @@ class CardModel:
 
     def get_footer_text_color_rgb(self):
         return self._hex_to_rgb(self.footerColour, default=(0.0, 0.0, 0.0))
+
+    def get_background_color_rgb(self):
+        return self._hex_to_rgb(self.backgroundColour, default=(1.0, 1.0, 1.0))
 
     @staticmethod
     def _hex_to_rgb(colour: str, *, default):

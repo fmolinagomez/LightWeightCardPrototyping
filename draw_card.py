@@ -45,6 +45,10 @@ def drawCard(
     ctx.save()
     layout.clip_card(ctx)
 
+    if not card.imageFullFrame:
+        ctx.set_source_rgb(*card.get_background_color_rgb())
+        ctx.paint()
+
 
     ctx.select_font_face('serif')
 
