@@ -51,7 +51,10 @@ El archivo de definicion de cartas es un archivo en jormato json con el siguente
             "name": "str",
             "type": "str",
             "subtype": "str",
-            "text": "str",
+            "card_text": {
+                "text": "str",
+                "colour": "#RRGGBB"
+            },
             "manaCost": "str",
             "power": int,
             "toughness": int,

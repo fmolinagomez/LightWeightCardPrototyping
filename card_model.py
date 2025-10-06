@@ -25,6 +25,7 @@ class CardModel:
         self.nameStr = "NAME"
         self.typeStr = "TYPE - SUBTYPE"
         self.cardText = "Some text"
+        self.cardTextColour = "#000000"
         self.manaCost = "\{W\}"
         self.power = None
         self.toughness = None
@@ -41,10 +42,17 @@ class CardModel:
         if ('subtype' in data):
             self.typeStr = self.typeStr + " - " + data['subtype']
 
-        if ('text' in data):
+        if 'card_text' in data:
+            card_text = data['card_text'] or {}
+            self.cardText = card_text.get('text', '')
+            self.cardTextColour = card_text.get('colour', '#000000') or '#000000'
+        elif 'text' in data:
+            # Backwards compatibility with older card definitions.
             self.cardText = data['text']
+            self.cardTextColour = '#000000'
         else:
             self.cardText = ""
+            self.cardTextColour = '#000000'
         
         if ('manaCost' in data):
             self.manaCost = data['manaCost']
@@ -59,3 +67,20 @@ class CardModel:
 
     def __str__(self):
         return f'{self.nameStr} - {self.manaCost} ({self.typeStr})'
+
+    def get_text_color_rgb(self):
+        colour = (self.cardTextColour or '#000000').strip()
+        if colour.startswith('#'):
+            colour = colour[1:]
+
+        if len(colour) != 6:
+            return (0.0, 0.0, 0.0)
+
+        try:
+            red = int(colour[0:2], 16) / 255.0
+            green = int(colour[2:4], 16) / 255.0
+            blue = int(colour[4:6], 16) / 255.0
+        except ValueError:
+            return (0.0, 0.0, 0.0)
+
+        return (red, green, blue)
