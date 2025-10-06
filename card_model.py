@@ -29,7 +29,7 @@ class CardModel:
         self.typeStr = "TYPE - SUBTYPE"
         self.cardText = "Some text"
         self.cardTextColour = "#000000"
-        self.manaCost = "\{W\}"
+        self.commandPoints = 0
         self.power = None
         self.toughness = None
         self.image = None
@@ -75,10 +75,11 @@ class CardModel:
             self.cardText = ""
             self.cardTextColour = '#000000'
 
-        if ('manaCost' in data):
-            self.manaCost = data['manaCost']
-        else:
-            self.manaCost = ""
+        command_points_value = data.get('commandPoints')
+        if command_points_value is None:
+            command_points_value = data.get('manaCost')
+
+        self.commandPoints = self._parse_command_points(command_points_value)
 
         if 'power' in data:
             self.power = int(data['power'])
@@ -118,7 +119,7 @@ class CardModel:
         self.footerFontStyle = self._normalise_footer_style(footer_style)
 
     def __str__(self):
-        return f'{self.headerText} - {self.manaCost} ({self.typeStr})'
+        return f'{self.headerText} - {self.commandPoints} ({self.typeStr})'
 
     def get_text_color_rgb(self):
         return self._hex_to_rgb(self.cardTextColour, default=(0.0, 0.0, 0.0))
@@ -178,3 +179,24 @@ class CardModel:
         }
 
         return style_map.get(normalised, 'normal')
+
+    @staticmethod
+    def _parse_command_points(value) -> int:
+        if value is None:
+            return 0
+
+        if isinstance(value, (int, float)):
+            return int(value)
+
+        text = str(value).strip()
+        if not text:
+            return 0
+
+        digits = ''.join(ch for ch in text if ch.isdigit() or ch == '-')
+        if not digits:
+            return 0
+
+        try:
+            return int(digits)
+        except ValueError:
+            return 0

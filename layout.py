@@ -11,9 +11,6 @@ MM_PER_INCH = 25.4
 # Card Measurements
 nameBL = (6,8.5)
 nameH = 2.5
-manaRight = 57
-mana0TL = (54,5.5)
-manaOS = 3.5
 typeBL = (6,52.5)
 typeH = 2
 cardTextBL = (6,58)
@@ -38,6 +35,12 @@ CARD_WIDTH_MM = 63
 CARD_HEIGHT_MM = 85
 SINGLE_CARD_DPI = 300
 CARD_CORNER_RADIUS_MM = 3.0
+
+commandPointsShieldTL = (CARD_WIDTH_MM - 12.0, 4.0)
+commandPointsShieldSize = (9.0, 9.5)
+commandPointsShieldPointHeight = 3.0
+commandPointsFontSize = 4.0
+commandPointsBorderWidth = 0.5
 
 
 def mm_to_pixels(value_mm: float, dpi: float) -> int:
