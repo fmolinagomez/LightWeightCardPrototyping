@@ -48,18 +48,29 @@ El archivo de definicion de cartas es un archivo en jormato json con el siguente
 {
     "CartID":
         {
-            "name": "str",
+            "header": {
+                "text": "str",
+                "color": "#RRGGBB",
+                "banner": true | false,
+                "banner_color": "#RRGGBB"
+            },
             "type": "str",
             "subtype": "str",
-            "text": "str",
+            "card_text": {
+                "text": "str",
+                "colour": "#RRGGBB"
+            },
             "manaCost": "str",
             "power": int,
             "toughness": int,
-            "image": "str"
+            "image": "str",
+            "full_frame_image": true | false
         },
         ....
 }
 ```
+El objeto `header` define el texto visible en la parte superior de la carta. El campo `color` ajusta el color del texto, mientras que los campos `banner` y `banner_color` permiten activar un recuadro de color sólido detrás del encabezado cuando sea necesario.
+El bloque `card_text` permite especificar el texto del cuerpo y el color con el que debe renderizarse. Para las imágenes puedes indicar un nombre de archivo directamente o un objeto con las claves `source` y `full_frame`. Cuando `full_frame_image` (o `full_frame` en el objeto de imagen) es `true`, la ilustración se ampliará para cubrir toda la carta; en caso contrario se mantendrá dentro del marco de arte.
 Las imagenes deben almacenarse en el directorio "images" que se encuentra en la misma carpeta que LWCProto.py, el formato de las imagenes es indiferente y su tamaño tambien estas seran redimensionadas automaticamente para adaptarse al tamaño disponible en el layout
 
 ### Archivo de definicion del mazo

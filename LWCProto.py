@@ -33,11 +33,6 @@ parser.add_argument('-d', '--deck', type=extant_file, help='csv file containing 
 parser.add_argument('-c', '--cards', type=extant_file, help='json file containing cards description', metavar="FILE", required=True)
 
 parser.add_argument('-i', '--images', help='Add images to cards', action='store_true')
-parser.add_argument(
-    '--full-frame-images',
-    help='Scale images to cover the entire card and adjust text colour for contrast',
-    action='store_true',
-)
 parser.add_argument('-r', '--rgb', help='Update layout card border colour with given R,G,B, only works with default layout', nargs=3, type=int)
 parser.add_argument('-l', '--layout', help='Use a different layout than default', type=extant_file, metavar="FILE")
 parser.add_argument('--single-card', help='Render each card as an individual 63x85mm PNG at 300 DPI', action='store_true')
@@ -46,7 +41,6 @@ parser.add_argument('--single-card', help='Render each card as an individual 63x
 args = parser.parse_args()
 
 handle_images = args.images
-full_frame_images = args.full_frame_images
 modify_layout = args.rgb
 cards_file = args.cards
 single_card_mode = args.single_card
@@ -57,9 +51,6 @@ if single_card_mode and deck_file is not None:
 
 if (not single_card_mode) and deck_file is None:
     parser.error('the --deck/-d option is required unless --single-card is specified')
-
-if full_frame_images and not handle_images:
-    parser.error('the --full-frame-images option requires --images')
 
 cards = CardDeck(cards_file)
 
@@ -85,14 +76,12 @@ else:
     cardList = [CardModel(name, cards.getDb()) for name in nameList]
     pageList = [cardList[i:i+9] for i in range(0, len(cardList), 9)]
 
-if (handle_images and not full_frame_images) or (modify_layout is not None):
+if handle_images or (modify_layout is not None):
     from add_images import BaseImage
 
-if handle_images and not full_frame_images:
+if handle_images:
     from add_images import addImage
     from add_images import processImage
-
-if handle_images and full_frame_images:
     from add_images import load_full_frame_surface
 
 if not os.path.exists('decks'):
@@ -123,26 +112,23 @@ if single_card_mode:
         ctx.paint()
 
 
-        text_color = (0.0, 0.0, 0.0)
-        if handle_images and full_frame_images:
-            full_frame_surface, computed_color = load_full_frame_surface(card, single_dpi)
+        if handle_images and card.imageFullFrame:
+            full_frame_surface = load_full_frame_surface(card, single_dpi)
             if full_frame_surface is not None:
                 ctx.save()
                 ctx.identity_matrix()
                 ctx.set_source_surface(full_frame_surface, 0, 0)
                 ctx.paint()
                 ctx.restore()
-                if computed_color is not None:
-                    text_color = computed_color
 
         ctx.reset_clip()
         ctx.set_matrix(card_matrix)
-        drawCard(card, ctx, text_color=text_color)
-        card_filename = f"{index:03d}_{_slugify(card.nameStr)}.png"
+        drawCard(card, ctx)
+        card_filename = f"{index:03d}_{_slugify(card.headerText)}.png"
         output_path = os.path.join(cards_output_dir, card_filename)
         surf.write_to_png(output_path)
 
-        if handle_images and not full_frame_images:
+        if handle_images and not card.imageFullFrame:
             processImage(card, deck_name, dpi=single_dpi)
             baseImage = BaseImage(output_path)
             updated_image = addImage(card, baseImage, deck_name, dpi=single_dpi)
@@ -163,9 +149,8 @@ else:
             print(cardPos)
             print(card)
 
-            text_color = (0.0, 0.0, 0.0)
-            if handle_images and full_frame_images:
-                full_frame_surface, computed_color = load_full_frame_surface(card, page_dpi)
+            if handle_images and card.imageFullFrame:
+                full_frame_surface = load_full_frame_surface(card, page_dpi)
                 if full_frame_surface is not None:
                     card_origin_mm = layout.get_card_origin_mm(cardPos)
                     origin_px = layout.pair_mm_to_pixels(
@@ -178,12 +163,10 @@ else:
                     ctx.set_source_surface(full_frame_surface, *origin_px)
                     ctx.paint()
                     ctx.restore()
-                    if computed_color is not None:
-                        text_color = computed_color
 
             mat = layout.getMatrix(*cardPos, surf)
             ctx.set_matrix(mat)
-            drawCard(card, ctx, text_color=text_color)
+            drawCard(card, ctx)
 
         output_path = f'decks/{deck_name}/{deck_name}_p{page_number}.png'
         surf.write_to_png(output_path)
@@ -203,28 +186,37 @@ else:
 
 
         #import pdb;pdb.set_trace()
-        if handle_images and not full_frame_images:
+        if handle_images:
             page_dpi = layout.get_surface_dpi(surf)
-            baseImage = BaseImage(output_path)
-            for i in range (len(page)):
-                card = page[i]
-                cardPos = (i % 3, i // 3)
-                card_origin_mm = layout.get_card_origin_mm(cardPos)
-                image_position_mm = (
-                    card_origin_mm[0] + layout.ART_OFFSET_MM[0],
-                    card_origin_mm[1] + layout.ART_OFFSET_MM[1],
-                )
-                processImage(card,deck_name, dpi=page_dpi)
-                baseImage.update(
-                    addImage(
-                        card,
-                        baseImage,
-                        deck_name,
-                        position_mm=image_position_mm,
-                        dpi=page_dpi,
+            needs_partial_images = any(
+                card.image is not None and not card.imageFullFrame for card in page
+            )
+
+            if needs_partial_images:
+                baseImage = BaseImage(output_path)
+                for i in range(len(page)):
+                    card = page[i]
+                    if card.image is None or card.imageFullFrame:
+                        continue
+
+                    cardPos = (i % 3, i // 3)
+                    card_origin_mm = layout.get_card_origin_mm(cardPos)
+                    image_position_mm = (
+                        card_origin_mm[0] + layout.ART_OFFSET_MM[0],
+                        card_origin_mm[1] + layout.ART_OFFSET_MM[1],
                     )
-                )
-            baseImage.save(output_path)
+                    processImage(card, deck_name, dpi=page_dpi)
+                    baseImage.update(
+                        addImage(
+                            card,
+                            baseImage,
+                            deck_name,
+                            position_mm=image_position_mm,
+                            dpi=page_dpi,
+                        )
+                    )
+
+                baseImage.save(output_path)
 
 
 if not single_card_mode:
